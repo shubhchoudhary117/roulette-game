@@ -1,0 +1,1306 @@
+/* ===================================================================
+   Roulette — single screen layout.
+   Desktop  : sidebar + wide wheel arc + horizontal table
+   Mobile   : (<= 900px) vertical table, wheel appears as overlay while rolling
+   Keep $mobile in sync with matchMedia in roulette.component.ts
+   =================================================================== */
+
+$bg: var(--bg);
+$bg2: var(--bg2);
+$panel: var(--panel);
+$panel2: var(--panel2);
+$line: var(--line);
+$red: var(--red);
+$dark: var(--dark);
+$green: var(--green);
+$muted: var(--muted);
+$radius: 10px;
+$mobile: 900px;
+
+@mixin flex($dir: row, $gap: 0, $align: center, $justify: flex-start) {
+  display: flex;
+  flex-direction: $dir;
+  align-items: $align;
+  justify-content: $justify;
+  gap: $gap;
+}
+
+@mixin mobile {
+  @media (max-width: $mobile) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$mobile + 1px}) {
+    @content;
+  }
+}
+
+/* casino chip: coloured body, white notched edge, dashed inner ring. Colour comes from --cc */
+@mixin casino-chip {
+  position: relative;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cc);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .45), inset 0 0 0 2px rgba(255, 255, 255, .55);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: repeating-conic-gradient(from -11deg, #fff 0 22deg, transparent 22deg 45deg);
+    -webkit-mask: radial-gradient(circle closest-side, transparent 0 71%, #000 72%);
+    mask: radial-gradient(circle closest-side, transparent 0 71%, #000 72%);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 16%;
+    border-radius: 50%;
+    border: 1.5px dashed rgba(255, 255, 255, .9);
+  }
+}
+
+:host {
+  /* palette taken from the reference screenshots */
+  --bg: #1a222c;
+  --bg2: #212b37;
+  --panel: #232e3b;
+  --panel2: #2c3947;
+  --line: #2f3b49;
+  --red: #f4395b;
+  --dark: #31475c;
+  --green: #37ad74;
+  --green-btn: #3f9a6a;
+  --muted: #8996a6;
+  --gold: #f5c542;
+
+  display: block;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  color: #fff;
+  font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* faint grain like the reference */
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+    $bg;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.app {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ------------------------------ header ------------------------------ */
+.topbar {
+  @include flex(row, 12px, center, space-between);
+  padding: 10px 18px;
+  background: $bg2;
+  border-bottom: 1px solid rgba(0, 0, 0, .12);
+  position: relative;
+  z-index: 30;
+
+  .logo {
+    @include flex(row, 0, center);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: .5px;
+    line-height: 1;
+
+    .lg {
+      width: 1.2em;
+      height: .72em;
+      margin: 0 .07em;
+      flex: none;
+    }
+  }
+
+  .actions {
+    @include flex(row, 10px);
+  }
+
+  .hbtn {
+    @include flex(row, 8px);
+    background: #2a3644;
+    border: none;
+    border-radius: $radius;
+    padding: 6px 14px;
+    font-weight: 700;
+    font-size: 13px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    i{
+      font-size: 24px;
+    }
+
+    &:hover {
+      background: $panel2;
+    }
+
+    &.icon {
+      padding: 6px;
+      background: none;
+      
+
+      &:hover {
+        background: $panel2;
+      }
+    }
+  }
+
+  .balance {
+    gap: 12px;
+    padding: 6px 18px;
+    font-size: 15px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    cursor: default;
+
+    .coin {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 800;
+      background: #fff;
+      color: #1f2a36;
+    }
+  }
+
+  @include mobile {
+    padding: 8px 13px;
+
+    .how,
+    .fs {
+      display: none;
+    }
+
+    .actions {
+      flex: 1;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .balance {
+      flex: none;
+      width: 39vw;
+      max-width: 210px;
+      min-height: 40px;
+      justify-content: center;
+      padding: 7px 10px;
+      font-size: 15px;
+    }
+
+    .logo {
+      font-size: 22px;
+    }
+  }
+}
+
+/* ------------------------------ menu (reference style card) ------------------------------ */
+.menu {
+  position: absolute;
+  right: 14px;
+  top: calc(100% + 8px);
+  width: 300px;
+  background: #36485a;
+  border: none;
+  border-radius: 18px;
+  padding: 16px 18px 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+  z-index: 40;
+
+  .menu-head {
+    @include flex(row, 12px);
+    padding-bottom: 14px;
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex: none;
+      background: #d5e5f2;
+
+      svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .name {
+      flex: 1;
+      min-width: 0;
+      font-weight: 700;
+      font-size: 16px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .link {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #e8a23a;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+
+      &:hover {
+        color: #ffbe5c;
+      }
+    }
+  }
+
+  .menu-row {
+    @include flex(row, 14px);
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 10px 0;
+    text-align: left;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+
+    svg {
+      width: 22px;
+      height: 22px;
+      color: #d3dce6;
+      flex: none;
+    }
+
+    span {
+      flex: 1;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, .05);
+    }
+  }
+
+  .only-m {
+    display: none;
+
+    @include mobile {
+      display: flex;
+    }
+  }
+
+  .toggle {
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    background: #5b6b7b;
+    position: relative;
+    flex: none;
+    transition: background .18s;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+      transition: transform .18s;
+    }
+
+    &.on {
+      background: #5bd15b;
+
+      &::after {
+        transform: translateX(20px);
+      }
+    }
+  }
+
+  .sep {
+    height: 1px;
+    background: #4b5d70;
+    margin: 8px 0;
+  }
+
+  .powered {
+    @include flex(row, 10px);
+    margin-top: 12px;
+    color: #9aa8b7;
+    font-size: 16px;
+    font-weight: 500;
+
+    /* text logo – swap for an <img> if you have the real one */
+    .brand {
+      font-size: 22px;
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: -.5px;
+      color: #fff;
+      transform: skewX(-6deg);
+
+      i {
+        font-style: inherit;
+        color: #f5a623;
+      }
+    }
+  }
+
+  @include mobile {
+    width: calc(100vw - 28px);
+    max-width: 320px;
+    right: 14px;
+  }
+}
+
+/* ------------------------------ body grid ------------------------------ */
+.body {
+  display: grid;
+  grid-template-columns: clamp(200px, 19vw, 300px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+
+  @include mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ------------------------------ players (desktop) ------------------------------ */
+.side {
+  padding: clamp(10px, 19vh, 200px) 16px 0 18px;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  overflow: hidden;
+
+  h2 {
+    @include flex(row, 8px, baseline, space-between);
+    margin: 0 0 14px;
+    font-size: clamp(15px, 2.1vh, 19px);
+    font-weight: 700;
+  }
+
+  .thead {
+    @include flex(row, 0, center, space-between);
+    color: $muted;
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .plist {
+    @include flex(column, 9px, stretch);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 34px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 34px), transparent);
+  }
+
+  .prow {
+    @include flex(row, 10px);
+    flex: none;
+    border-radius: 7px;
+    padding: 5px 10px;
+    font-size: 13px;
+    background: #222d3a;
+    /* a new player slides in from the top */
+    animation: rowIn .35s ease-out;
+
+    .av {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: $red;
+      border: 2px solid #f1a0ab;
+      box-sizing: content-box;
+      flex: none;
+      overflow: hidden;
+
+      svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    }
+
+    .nm {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .amt {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    &.me {
+      outline: 1px solid $green;
+    }
+  }
+
+  @include mobile {
+    display: none;
+  }
+}
+
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------ board ------------------------------ */
+.board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(4px, .9vh, 10px);
+  padding: 0 clamp(14px, calc(14.5vw - 35px), 260px) clamp(8px, 1.8vh, 16px);
+  overflow: hidden;
+  justify-items: center;
+  position: relative;
+
+  >* {
+    width: 100%;
+    max-width: 900px;
+  }
+
+  @include desktop {
+    grid-template-rows: minmax(0, 1fr) auto auto auto;
+
+    .wheelwrap {
+      grid-row: 1;
+    }
+
+    .bar {
+      grid-row: 2;
+    }
+
+    .tablewrap {
+      grid-row: 3;
+    }
+
+    /* chip bar is inset by one table column on each side (0 column and 2:1 column) */
+    .chipbar {
+      grid-row: 4;
+      width: calc(100% * 12 / 14);
+      max-width: calc(900px * 12 / 14);
+    }
+
+    .msg {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 2px;
+      max-width: none;
+      pointer-events: none;
+    }
+  }
+
+  @include mobile {
+    align-content: start;
+    gap: 2.6vw;
+    padding: 6px 3.4vw 18px;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+
+    .msg {
+      max-width: none;
+
+      &:empty {
+        display: none;
+      }
+    }
+  }
+}
+
+/* ---------- wheel ---------- */
+.wheelwrap {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+
+  /* Desktop: box is as wide as the table and keeps the SVG aspect (WHEEL_D.vb = 1140 x 320),
+     anchored to the bottom — if the area is shorter, the top of the wheel is simply cropped (hard edge, like the reference). */
+  .wheelbox {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    aspect-ratio: 1140 / 320;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .pocket {
+    stroke: #17202a;
+    stroke-width: 2;
+
+    &.r {
+      fill: $red;
+    }
+
+    &.b {
+      fill: $dark;
+    }
+
+    &.g {
+      fill: $green;
+    }
+  }
+
+  text {
+    fill: #fff;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  .rim {
+    fill: none;
+    stroke: #0e141b;
+    stroke-width: 3;
+    opacity: .6;
+  }
+
+  .ptr {
+    fill: url(#ptrG);
+    stroke: #d5dce5;
+    stroke-width: 6;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .55));
+  }
+
+  /* desktop: text sits at the top of the wheel area, inside the ring */
+  .status {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 16%;
+    text-align: center;
+    pointer-events: none;
+
+    .t1 {
+      color: #8f9bab;
+      font-size: clamp(13px, 2.3vh, 19px);
+      font-weight: 700;
+      min-height: 1.2em;
+    }
+
+    .t2 {
+      font-size: clamp(18px, 3.6vh, 27px);
+      font-weight: 800;
+      margin-top: 2px;
+
+      .num {
+        &.r {
+          color: #ff7b93;
+        }
+
+        &.b {
+          color: #cfd7e3;
+        }
+
+        &.g {
+          color: #5fcf92;
+        }
+      }
+    }
+  }
+
+  /* mobile: hidden until the wheel rolls, then a blurred overlay under the header */
+  @include mobile {
+    position: fixed;
+    inset: 56px 0 0 0;
+    width: auto;
+    max-width: none;
+    display: none;
+    place-items: center;
+    z-index: 20;
+    overflow: visible;
+    background: rgba(14, 20, 28, .62);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+
+    &.on {
+      display: grid;
+    }
+
+    &.res {
+      animation: fadeOut .45s ease 1.8s forwards;
+    }
+
+    /* full circle (WHEEL_M.vb = 600 x 600) */
+    .wheelbox {
+      position: relative;
+      inset: auto;
+      width: min(94vw, 62vh, 560px);
+      aspect-ratio: 1;
+    }
+
+    .status {
+      top: 0;
+      bottom: 0;
+      display: grid;
+      place-content: center;
+      text-align: center;
+
+      .t1 {
+        color: #cfd7e3;
+        font-size: 16px;
+        min-height: 0;
+
+        &:empty {
+          display: none;
+        }
+      }
+
+      .t2 {
+        font-size: clamp(26px, 5vh, 36px);
+        margin-top: 0;
+      }
+    }
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ---------- mobile top row ---------- */
+.mtop {
+  display: none;
+
+  @include mobile {
+    display: grid;
+    grid-template-columns: 26% minmax(0, 1fr) 26%;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+
+    &.strip {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .mcard,
+  .mstrip {
+    border: 2px solid $line;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, .12);
+    min-height: 45px;
+  }
+
+  .mcard {
+    padding: 5px 9px;
+  }
+
+  .mlabel {
+    color: $muted;
+    font-size: clamp(10px, 3vw, 13px);
+    font-weight: 600;
+    line-height: 20px
+  }
+
+  .mval {
+    @include flex(row, 8px);
+    margin-top: 2px;
+    font-weight: 800;
+    font-size: clamp(10px, 3.4vw, 10px);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      flex: none;
+      border-radius: 50%;
+      border: 3px solid #d9f3e4;
+      background: #48c179;
+      box-sizing: border-box;
+    }
+  }
+
+  .mstatus {
+    text-align: center;
+    line-height: 1.25;
+
+    .t1 {
+      color: #7d8898;
+      font-size: clamp(12px, 3.8vw, 17px);
+      font-weight: 700;
+    }
+
+    .t2 {
+      font-size: clamp(17px, 5.2vw, 23px);
+      font-weight: 800;
+    }
+  }
+
+  .mhist {
+    @include flex(row, 6px, center, space-around);
+    cursor: pointer;
+    padding: 5px 6px;
+  }
+
+  .chev {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    color: #fff;
+
+    &.flip {
+      transform: rotate(180deg);
+    }
+  }
+
+  /* full-width history strip (rolling / result / opened) */
+  .mstrip {
+    @include flex(row, 4px, center, space-between);
+    padding: 0 8px 0 4px;
+    cursor: pointer;
+
+    .nums {
+      flex: 1;
+      @include flex(row, 4px, center, space-around);
+      min-width: 0;
+    }
+
+    .hn {
+      min-width: 9.6vw;
+      font-size: clamp(11px, 3.1vw, 13px);
+      padding: 4px 6px;
+      border-radius: 8px;
+    }
+
+    .none {
+      color: $muted;
+      font-size: 13px;
+      font-weight: 600;
+    }
+  }
+}
+
+/* ---------- desktop bar ---------- */
+.bar {
+  @include flex(row, 12px, center, space-between);
+  flex-wrap: wrap;
+
+  .totalbet {
+    font-size: clamp(15px, 2.6vh, 22px);
+    font-weight: 800;
+  }
+
+  .tools {
+    @include flex(row, 8px);
+  }
+
+  .history {
+    @include flex(row, 7px);
+    background: $panel;
+    border: 1px solid $line;
+    border-radius: $radius;
+    padding: 0 6px;
+    height: clamp(26px, 3.9vh, 34px);
+
+    .hn {
+      min-width: 22px;
+      padding: 3px 5px;
+      font-size: 10px;
+      border-radius: 4px;
+    }
+
+    .arrow {
+      width: 14px;
+      height: 14px;
+      color: #fff;
+    }
+  }
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.tool {
+  background: #1b2530;
+  border: 1px solid $line;
+  border-radius: $radius;
+  width: clamp(26px, 3.9vh, 34px);
+  height: clamp(26px, 3.9vh, 34px);
+  display: grid;
+  place-items: center;
+  color: #c7d0dc;
+
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover:not(:disabled) {
+    background: $panel2;
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+  }
+}
+
+.hn {
+  min-width: 30px;
+  text-align: center;
+  padding: 4px 7px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+
+  &.r {
+    background: $red;
+  }
+
+  &.b {
+    background: $dark;
+  }
+
+  &.g {
+    background: $green;
+  }
+
+  &.big {
+    min-width: 10vw;
+    padding: 5px 8px;
+    font-size: 12px;
+    border-radius: 7px;
+  }
+}
+
+/* ---------- betting table ---------- */
+.tablewrap {
+  .table {
+    display: grid;
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+    grid-auto-rows: clamp(30px, 7.3vh, 56px);
+    gap: clamp(3px, .8vh, 6px);
+  }
+
+  .tools-m {
+    display: none;
+  }
+
+  .cell {
+    grid-column: var(--dc);
+    grid-row: var(--dr);
+    position: relative;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: clamp(12px, 2.2vh, 18px);
+    cursor: pointer;
+    user-select: none;
+    transition: filter .12s, transform .12s;
+
+    &:hover {
+      filter: brightness(1.2);
+      transform: translateY(-1px);
+    }
+
+    &.r {
+      background: $red;
+    }
+
+    &.b {
+      background: $dark;
+    }
+
+    &.zero {
+      background: $green;
+    }
+
+    &.colbet,
+    &.outside {
+      background: #1b2530;
+      border: 1px solid #2a3542;
+      font-size: clamp(11px, 2vh, 17px);
+      letter-spacing: .3px;
+    }
+
+    &.swatch-r {
+      background: $red;
+    }
+
+    &.swatch-b {
+      background: $dark;
+    }
+
+    &.win {
+      outline: 3px solid var(--gold);
+      outline-offset: -3px;
+      animation: pulse .5s 3;
+    }
+
+    /* chip on the left, running total bottom-right */
+    .chip-on {
+      @include casino-chip;
+      position: absolute;
+      left: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: clamp(20px, 3.6vh, 30px);
+      height: clamp(20px, 3.6vh, 30px);
+      pointer-events: none;
+    }
+
+    .amt {
+      position: absolute;
+      right: 5px;
+      bottom: 2px;
+      font-size: 10px;
+      font-weight: 800;
+      pointer-events: none;
+    }
+  }
+
+  @include mobile {
+    .table {
+      grid-template-columns: repeat(3, minmax(0, 1.63fr)) minmax(0, 1fr) minmax(0, 1.43fr);
+      grid-auto-rows: clamp(21px, 6.4vw, 32px);
+      gap: clamp(3px, 1.3vw, 6px);
+    }
+
+    .tools-m {
+      grid-column: 4 / span 2;
+      grid-row: 1;
+      display: flex;
+      gap: 6px;
+
+      .tool {
+        flex: 1;
+        width: auto;
+        height: 100%;
+        border-radius: 8px;
+
+        svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+
+    .cell {
+      grid-column: var(--mc);
+      grid-row: var(--mr);
+      font-size: clamp(11px, 3.2vw, 14px);
+      border-radius: 6px;
+
+      &:hover {
+        transform: none;
+      }
+
+      &.colbet,
+      &.outside {
+        font-size: clamp(9px, 2.8vw, 12px);
+      }
+
+      &.doz .lbl {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+      }
+
+      .chip-on {
+        left: 4px;
+        width: clamp(16px, 5vw, 22px);
+        height: clamp(16px, 5vw, 22px);
+      }
+
+      .amt {
+        font-size: 8px;
+        right: 4px;
+        bottom: 1px;
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  50% {
+    filter: brightness(1.55);
+  }
+}
+
+/* ---------- chips bar ---------- */
+.chipbar {
+  @include flex(row, 12px, center, center);
+  border: 2px solid $line;
+  background: rgba(0, 0, 0, .1);
+  border-radius: 14px;
+  padding: clamp(6px, 1.1vh, 12px) clamp(8px, 1.4vw, 16px);
+
+  .chiprow {
+    @include flex(row, 4px);
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .navchip {
+    display: grid;
+    place-items: center;
+    background: none;
+    border: none;
+    color: #fff;
+    padding: 0 2px;
+    flex: none;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      color: $muted;
+    }
+  }
+
+  .chips {
+    @include flex(row, 9px);
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    padding: 7px 5px;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .chip {
+    @include casino-chip;
+    display: grid;
+    place-items: center;
+    width: clamp(34px, 7.2vh, 52px);
+    height: clamp(34px, 7.2vh, 52px);
+    flex: none;
+    transition: transform .15s;
+
+    b {
+      position: relative;
+      z-index: 1;
+      font-weight: 800;
+      font-size: clamp(10px, 2vh, 15px);
+      color: #fff;
+      text-shadow: 0 0 2px rgba(0, 0, 0, .6), 0 1px 1px rgba(0, 0, 0, .45);
+    }
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+
+    &.sel {
+      transform: translateY(-3px) scale(1.07);
+      box-shadow: 0 0 0 2px $green, 0 4px 10px rgba(0, 0, 0, .5), inset 0 0 0 2px rgba(255, 255, 255, .55);
+    }
+  }
+
+  .place {
+    flex: 0 0 27%;
+    min-width: 130px;
+    background: var(--green-btn);
+    border: none;
+    border-radius: $radius;
+    padding: clamp(10px, 2.4vh, 20px);
+    font-size: clamp(14px, 2.6vh, 20px);
+    font-weight: 800;
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.12);
+    }
+
+    &:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+  }
+
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2.4vw;
+    border: none;
+    background: none;
+    padding: 0;
+
+    .chiprow {
+      flex: none;
+      border: 2px solid $line;
+      background: rgba(0, 0, 0, .12);
+      border-radius: 14px;
+      padding: 4px;
+      justify-content: space-between;
+    }
+
+    .chips {
+      gap: 2.2vw;
+      padding: 6px 5px;
+    }
+
+    .chip {
+      width: clamp(30px, 9.2vw, 42px);
+      height: clamp(30px, 9.2vw, 42px);
+
+      b {
+        font-size: clamp(9px, 2.8vw, 12px);
+      }
+    }
+
+    .place {
+      flex: none;
+      width: 100%;
+      min-width: 0;
+      padding: clamp(14px, 4.2vw, 19px);
+      font-size: clamp(15px, 4.6vw, 19px);
+      border-radius: 14px;
+    }
+  }
+}
+
+.msg {
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ------------------------------ modals ------------------------------ */
+.ov {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 12, 18, .75);
+  @include flex(row, 0, center, center);
+  padding: 18px;
+  z-index: 60;
+
+  .modal {
+    background: $panel;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 580px;
+    max-height: 84vh;
+    overflow: auto;
+    padding: 22px;
+
+    h3 {
+      @include flex(row, 8px, center, space-between);
+      margin: 0 0 12px;
+
+      .x {
+        background: none;
+        border: none;
+        color: $muted;
+        font-size: 26px;
+        line-height: 1;
+      }
+    }
+
+    p,
+    li {
+      line-height: 1.7;
+      color: #dbe2ec;
+    }
+
+    .muted {
+      color: $muted;
+      font-size: 13px;
+    }
+
+    label {
+      display: block;
+      color: $muted;
+      font-size: 12px;
+      margin: 12px 0 4px;
+    }
+
+    .code {
+      background: var(--bg2);
+      border: 1px solid $line;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+
+      th,
+      td {
+        padding: 8px 6px;
+        border-bottom: 1px solid $line;
+        text-align: left;
+      }
+
+      th {
+        color: $muted;
+        font-weight: 600;
+      }
+
+      td.win {
+        color: #5fcf92;
+        font-weight: 600;
+      }
+    }
+
+    .reset {
+      margin-top: 14px;
+      background: $panel2;
+      border: 1px solid $line;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: 600;
+    }
+  }
+}

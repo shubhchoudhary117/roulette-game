@@ -1,1 +1,45 @@
 /* You can add global styles to this file, and also import other style files */
+/* ---- global tokens + resets ---- */
+:root {
+    --bg: #1b232e;
+    --bg2: #141b24;
+    --panel: #222c38;
+    --panel2: #2b3644;
+    --line: #2c3846;
+    --red: #c2415a;
+    --dark: #3d4c5e;
+    --green: #4a9d6e;
+    --green-btn: #3f7c5c;
+    --text: #ffffff;
+    --muted: #8e9aab;
+    --gold: #ffd24a;
+
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; // single screen, no scroll
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rubik', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+}
+
+button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}

@@ -1,0 +1,425 @@
+<div class="app">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="topbar">
+    <div class="logo" aria-label="Roulette">
+      <span>RO</span>
+      <svg class="lg" viewBox="0 3 40 18.5" preserveAspectRatio="none" aria-hidden="true">
+        <path fill="#3f536b" d="M7.27 15.73A18 18 0 0 1 2 3L12 3A8 8 0 0 0 14.34 8.66Z" />
+        <path fill="#e04a5f" d="M20 21A18 18 0 0 1 7.27 15.73L14.34 8.66A8 8 0 0 0 20 11Z" />
+        <path fill="#3f536b" d="M32.73 15.73A18 18 0 0 1 20 21L20 11A8 8 0 0 0 25.66 8.66Z" />
+        <path fill="#e04a5f" d="M38 3A18 18 0 0 1 32.73 15.73L25.66 8.66A8 8 0 0 0 28 3Z" />
+      </svg>
+      <span>LETTE</span>
+    </div>
+
+    <div class="actions">
+      <button class="hbtn how" (click)="openModal('how')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 11v5M12 8h.01" />
+        </svg>
+        How to play?
+      </button>
+
+      <div class="hbtn balance">
+        {{ money(s.balance()) }}
+        <span class="coin">$</span>
+      </div>
+
+      <button class="hbtn icon fs" (click)="toggleFullscreen()" title="Fullscreen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />
+        </svg>
+      </button>
+
+      <button class="hbtn icon" (click)="menuOpen = !menuOpen" title="Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <!-- ---------- dropdown menu ---------- -->
+    <div class="menu" *ngIf="menuOpen">
+      <div class="menu-head">
+        <span class="avatar">
+          <!-- placeholder avatar: replace with <img src="assets/avatar.png"> if you have one -->
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="24" fill="#d5e5f2" />
+            <path d="M8 48c1-9 7-13 16-13s15 4 16 13z" fill="#1d2733" />
+            <ellipse cx="24" cy="22" rx="8.5" ry="10" fill="#f6dcc4" />
+            <path d="M14.5 21c0-8 4-12 9.5-12s9.5 4 9.5 12c-2-3-4-4.5-6-5.5-3 2-8 2-13 5.5z" fill="#1d2733" />
+          </svg>
+        </span>
+        <span class="name">{{ s.playerName() }}</span>
+        <button class="link">Change avatar</button>
+      </div>
+
+      <button class="menu-row" (click)="audio.toggleSound()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M4 9v6h4l5 4V5L8 9H4z" />
+          <path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11" />
+        </svg>
+        <span>Sound</span>
+        <i class="toggle" [class.on]="audio.sound()"></i>
+      </button>
+
+      <button class="menu-row" (click)="audio.toggleMusic()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M9 18V5l10-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="16" cy="16" r="3" />
+        </svg>
+        <span>Music</span>
+        <i class="toggle" [class.on]="audio.music()"></i>
+      </button>
+
+      <div class="sep"></div>
+
+      <button class="menu-row only-m" (click)="openModal('how')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 11v5M12 8h.01" />
+        </svg>
+        <span>How to play?</span>
+      </button>
+
+      <button class="menu-row" (click)="openModal('fair')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6z" />
+          <path d="M9 12l2 2 4-4" />
+        </svg>
+        <span>Provably fair settings</span>
+      </button>
+
+      <button class="menu-row" (click)="openModal('rules')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h5" />
+          <path d="M13 3l4 4v3" />
+          <path d="M8 9h3M8 13h3" />
+          <path d="M13 21l1-3.5 5.5-5.5 2.5 2.5-5.5 5.5z" />
+        </svg>
+        <span>Game rules</span>
+      </button>
+
+      <button class="menu-row" (click)="openModal('bets')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5" />
+          <path d="M3.5 3.5v5h5" />
+          <path d="M12 7.5V12l3 2" />
+        </svg>
+        <span>My bet history</span>
+      </button>
+
+      <div class="sep"></div>
+
+      <div class="powered">
+        <span>Powered by</span>
+        <b class="brand"><i>IN</i>OUT</b>
+      </div>
+    </div>
+  </header>
+
+  <!-- shared undo / repeat / clear buttons (desktop: in the bar, mobile: inside the table) -->
+  <ng-template #toolsT>
+    <button class="tool" (click)="s.undo()" [disabled]="!s.canBet()" title="Undo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 14L4 9l5-5" />
+        <path d="M4 9h11a5 5 0 0 1 0 10h-3" />
+      </svg>
+    </button>
+    <button class="tool" (click)="s.repeat()" [disabled]="!s.canBet()" title="Repeat last bets">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 2l4 4-4 4" />
+        <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+        <path d="M7 22l-4-4 4-4" />
+        <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+      </svg>
+    </button>
+    <button class="tool" (click)="s.clear()" [disabled]="!s.canBet()" title="Clear bets">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13" />
+      </svg>
+    </button>
+  </ng-template>
+
+  <!-- player avatar (red circle + white silhouette) -->
+  <ng-template #avT>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="9" r="3.7" fill="#fff" />
+      <path d="M5 20.5c0-3.9 3.1-6.2 7-6.2s7 2.3 7 6.2z" fill="#fff" />
+    </svg>
+  </ng-template>
+
+  <!-- ==================== BODY ==================== -->
+  <div class="body">
+
+    <!-- ---------- players sidebar (desktop only) ----------
+         Starts empty every round, players join one by one while the timer runs,
+         list is cleared again when the spin finishes. -->
+    <aside class="side">
+      <h2>Bets <span>$ {{ s.potTotal() | number:'1.2-2' }}</span></h2>
+      <div class="thead"><span>Players</span><span>Bets</span></div>
+
+      <div class="plist">
+        <div class="prow me" *ngIf="s.total() > 0">
+          <span class="av"><ng-container *ngTemplateOutlet="avT"></ng-container></span>
+          <span class="nm">You</span>
+          <span class="amt">$ {{ s.total() | number:'1.0-2' }}</span>
+        </div>
+        <div class="prow" *ngFor="let b of s.bots(); trackBy: trackBot">
+          <span class="av"><ng-container *ngTemplateOutlet="avT"></ng-container></span>
+          <span class="nm">{{ b.name }}</span>
+          <span class="amt">{{ b.cur }} {{ b.amt | number:'1.0-2' }}</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ---------- game board ---------- -->
+    <main class="board">
+
+      <!-- wheel: desktop = bottom arc, mobile = full-circle overlay while rolling -->
+      <section class="wheelwrap" [class.on]="s.phase() !== 'bet'" [class.res]="s.phase() === 'result'">
+        <div class="wheelbox">
+          <svg [attr.viewBox]="geo.vb">
+            <defs>
+              <linearGradient id="ptrG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ffffff" />
+                <stop offset="1" stop-color="#a9b4c0" />
+              </linearGradient>
+            </defs>
+            <g [attr.transform]="'rotate(' + s.rotation() + ' ' + geo.cx + ' ' + geo.cy + ')'">
+              <path *ngFor="let p of pockets" [attr.d]="p.d" [attr.class]="'pocket ' + p.color" />
+              <text *ngFor="let p of pockets" [attr.x]="p.tx" [attr.y]="p.ty" [style.font-size.px]="geo.fs"
+                [attr.transform]="'rotate(' + p.rot + ' ' + p.tx + ' ' + p.ty + ')'">{{ p.n }}</text>
+            </g>
+            <circle [attr.cx]="geo.cx" [attr.cy]="geo.cy" [attr.r]="geo.rOut + 2" class="rim" />
+            <circle [attr.cx]="geo.cx" [attr.cy]="geo.cy" [attr.r]="geo.rIn - 2" class="rim" />
+            <polygon class="ptr" [attr.points]="pointer" />
+          </svg>
+
+          <div class="status">
+            <div class="t1">{{ statusTitle }}</div>
+            <div class="t2" [ngSwitch]="s.phase()">
+              <ng-container *ngSwitchCase="'bet'">{{ s.countdown() }} Sec</ng-container>
+              <ng-container *ngSwitchCase="'spin'">Rolling…</ng-container>
+              <ng-container *ngSwitchDefault>
+                <span [class]="'num ' + colorOf(s.winningNumber() ?? 0)">{{ s.winningNumber() }}</span>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- mobile top row.
+           betting  : total bets | countdown | last number
+           rolling / result / chevron opened : full-width history strip -->
+      <section class="mtop" [class.strip]="stripOpen">
+
+        <ng-container *ngIf="!stripOpen; else stripT">
+          <div class="mcard">
+            <div class="mlabel">Total bets</div>
+            <div class="mval"><i class="dot"></i>{{ s.potTotal() | number:'1.0-2' }} $</div>
+          </div>
+
+          <div class="mstatus">
+            <div class="t1">Game starts in:</div>
+            <div class="t2">{{ s.countdown() }} Sec</div>
+          </div>
+
+          <div class="mcard mhist" (click)="toggleHist()">
+            <span class="hn big b" *ngIf="!s.lastNumbers().length">–</span>
+            <span class="hn big" *ngIf="s.lastNumbers().length" [class.r]="colorOf(s.lastNumbers()[0]) === 'r'"
+              [class.b]="colorOf(s.lastNumbers()[0]) === 'b'" [class.g]="colorOf(s.lastNumbers()[0]) === 'g'">{{
+              s.lastNumbers()[0] }}</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 5l-7 7 7 7" />
+            </svg>
+          </div>
+        </ng-container>
+
+        <ng-template #stripT>
+          <div class="mstrip" (click)="toggleHist()">
+            <div class="nums">
+              <span class="none" *ngIf="!s.lastNumbers().length">No spins yet</span>
+              <span class="hn" *ngFor="let n of s.lastNumbers()" [class.r]="colorOf(n) === 'r'"
+                [class.b]="colorOf(n) === 'b'" [class.g]="colorOf(n) === 'g'">{{ n }}</span>
+            </div>
+            <svg class="chev flip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 5l-7 7 7 7" />
+            </svg>
+          </div>
+        </ng-template>
+      </section>
+
+      <!-- desktop bar -->
+      <section class="bar">
+        <div class="totalbet">Total bet: {{ s.total() | number:'1.0-2' }} $</div>
+
+        <div class="tools">
+          <div class="history">
+            <span class="hn" *ngFor="let n of deskHistory" [class.r]="colorOf(n) === 'r'" [class.b]="colorOf(n) === 'b'"
+              [class.g]="colorOf(n) === 'g'">{{ n }}</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 5l-7 7 7 7" />
+            </svg>
+          </div>
+          <ng-container *ngTemplateOutlet="toolsT"></ng-container>
+        </div>
+      </section>
+
+      <!-- betting table -->
+      <section class="tablewrap">
+        <div class="table">
+          <div class="tools-m"><ng-container *ngTemplateOutlet="toolsT"></ng-container></div>
+
+          <div *ngFor="let c of cells" [class]="'cell ' + c.cls" [class.win]="isWinningCell(c.key)" [style.--dc]="c.col"
+            [style.--dr]="c.row" [style.--mc]="c.mcol" [style.--mr]="c.mrow" (click)="s.placeChip(c.key)">
+            <span class="lbl">{{ c.label }}</span>
+            <ng-container *ngIf="chipOn(c.key) as amt">
+              <span class="chip-on" [style.--cc]="s.chipColor(amt)"></span>
+              <span class="amt">{{ chipText(amt) }}</span>
+            </ng-container>
+          </div>
+        </div>
+      </section>
+
+      <!-- chips + place bet -->
+      <section class="chipbar">
+        <div class="chiprow">
+          <button class="navchip" (click)="scrollChips(-1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M15 5l-7 7 7 7" />
+            </svg>
+          </button>
+          <div class="chips" #chipTrack>
+            <button *ngFor="let c of chips" class="chip" [class.sel]="s.chip() === c.v" [style.--cc]="c.c"
+              (click)="s.setChip(c.v)"><b>{{ c.v }}</b></button>
+          </div>
+          <button class="navchip" (click)="scrollChips(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        <button class="place" (click)="s.confirm()" [disabled]="!s.canBet() || s.total() <= 0">
+          {{ s.locked() ? 'Bet placed ' : 'Place bet' + (mobile() ? ' (' + chipText(s.total()) + ' $)' : '') }}
+        </button>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+  <div class="ov" *ngIf="modal" (click)="modal = null">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+      <h3>
+        <ng-container [ngSwitch]="modal">
+          <span *ngSwitchCase="'how'">How to play?</span>
+          <span *ngSwitchCase="'fair'">Provably fair settings</span>
+          <span *ngSwitchCase="'rules'">Game rules</span>
+          <span *ngSwitchDefault>My bet history</span>
+        </ng-container>
+        <button class="x" (click)="modal = null">&times;</button>
+      </h3>
+
+      <ng-container [ngSwitch]="modal">
+
+        <div *ngSwitchCase="'how'">
+          <p>European roulette — 37 pockets (0–36). Every round gives you 15 seconds to place chips before the wheel
+            spins.</p>
+          <ol>
+            <li>Pick a chip value at the bottom.</li>
+            <li>Click a number or an outside area to drop a chip — click again to stack.</li>
+            <li>Press <b>Place bet</b> to lock in (bets lock automatically when the timer ends).</li>
+            <li>The pointer decides the winning number and payouts settle instantly.</li>
+          </ol>
+        </div>
+
+        <div *ngSwitchCase="'rules'">
+          <table>
+            <tr>
+              <th>Bet</th>
+              <th>Covers</th>
+              <th>Payout</th>
+            </tr>
+            <tr>
+              <td>Straight number</td>
+              <td>1 number</td>
+              <td>35 : 1</td>
+            </tr>
+            <tr>
+              <td>Column (2:1)</td>
+              <td>12 numbers</td>
+              <td>2 : 1</td>
+            </tr>
+            <tr>
+              <td>Dozen</td>
+              <td>12 numbers</td>
+              <td>2 : 1</td>
+            </tr>
+            <tr>
+              <td>Red / Black</td>
+              <td>18 numbers</td>
+              <td>1 : 1</td>
+            </tr>
+            <tr>
+              <td>Even / Odd</td>
+              <td>18 numbers</td>
+              <td>1 : 1</td>
+            </tr>
+            <tr>
+              <td>1–18 / 19–36</td>
+              <td>18 numbers</td>
+              <td>1 : 1</td>
+            </tr>
+          </table>
+          <p class="muted">Zero loses every outside bet — house edge 2.70%.</p>
+        </div>
+
+        <div *ngSwitchCase="'fair'">
+          <p class="muted">Each round is generated from a server seed and your client seed. The hash is published before
+            the spin so results can be verified afterwards.</p>
+          <label>Client seed</label>
+          <div class="code">{{ clientSeed }}</div>
+          <label>Server seed (hashed)</label>
+          <div class="code">{{ serverHash }}</div>
+          <p class="muted">Demo build — the numbers are drawn locally with Math.random().</p>
+        </div>
+
+        <div *ngSwitchDefault>
+          <p class="muted" *ngIf="!s.history().length">No bets placed yet.</p>
+          <table *ngIf="s.history().length">
+            <tr>
+              <th>#</th>
+              <th>Time</th>
+              <th>Number</th>
+              <th>Staked</th>
+              <th>Returned</th>
+            </tr>
+            <tr *ngFor="let h of s.history()">
+              <td>{{ h.round }}</td>
+              <td>{{ h.time }}</td>
+              <td><span [class]="'hn ' + colorOf(h.number)">{{ h.number }}</span></td>
+              <td>$ {{ h.staked | number:'1.2-2' }}</td>
+              <td [class.win]="h.returned > 0">$ {{ h.returned | number:'1.2-2' }}</td>
+            </tr>
+          </table>
+          <button class="reset" (click)="s.resetBalance()">Reset balance to $1,000</button>
+        </div>
+
+      </ng-container>
+    </div>
+  </div>
+</div>
