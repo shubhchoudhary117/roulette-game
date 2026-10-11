@@ -24,6 +24,7 @@ export class RouletteService {
   message = signal('');
   history = signal<HistoryEntry[]>([]);
   playerName = signal('Indigo Zany …');
+  winAmount = signal(0);
 
   private stack: Array<{ key: string; v: number }> = [];
   private lastBets: Record<string, number> = {};
@@ -127,6 +128,7 @@ export class RouletteService {
       this.phase.set('bet');
       this.locked.set(false);
       this.winningNumber.set(null);
+      this.winAmount.set(0); 
       this.clear(true);
       this.newBots();
       this.round++;
@@ -153,6 +155,7 @@ export class RouletteService {
       let ret = 0;
       for (const [k, amt] of Object.entries(this.bets())) ret += amt * payout(k, num);
       ret = r2(ret);
+      this.winAmount.set(ret);
       if (ret > 0) { this.balance.update(b => r2(b + ret)); this.audio.playWin(); }
       this.lastNumbers.update(h => [num, ...h].slice(0, 6));
       if (staked > 0) {

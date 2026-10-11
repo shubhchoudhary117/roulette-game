@@ -184,38 +184,58 @@
     <main class="board">
 
       <!-- wheel: desktop = bottom arc, mobile = full-circle overlay while rolling -->
-      <section class="wheelwrap" [class.on]="s.phase() !== 'bet'" [class.res]="s.phase() === 'result'">
-        <div class="wheelbox">
-          <svg [attr.viewBox]="geo.vb">
-            <defs>
-              <linearGradient id="ptrG" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#ffffff" />
-                <stop offset="1" stop-color="#a9b4c0" />
-              </linearGradient>
-            </defs>
-            <g [attr.transform]="'rotate(' + s.rotation() + ' ' + geo.cx + ' ' + geo.cy + ')'">
-              <path *ngFor="let p of pockets" [attr.d]="p.d" [attr.class]="'pocket ' + p.color" />
-              <text *ngFor="let p of pockets" [attr.x]="p.tx" [attr.y]="p.ty" [style.font-size.px]="geo.fs"
-                [attr.transform]="'rotate(' + p.rot + ' ' + p.tx + ' ' + p.ty + ')'">{{ p.n }}</text>
-            </g>
-            <circle [attr.cx]="geo.cx" [attr.cy]="geo.cy" [attr.r]="geo.rOut + 2" class="rim" />
-            <circle [attr.cx]="geo.cx" [attr.cy]="geo.cy" [attr.r]="geo.rIn - 2" class="rim" />
-            <polygon class="ptr" [attr.points]="pointer" />
-          </svg>
-
-          <div class="status">
-            <div class="t1">{{ statusTitle }}</div>
-            <div class="t2" [ngSwitch]="s.phase()">
-              <ng-container *ngSwitchCase="'bet'">{{ s.countdown() }} Sec</ng-container>
-              <ng-container *ngSwitchCase="'spin'">Rolling…</ng-container>
-              <ng-container *ngSwitchDefault>
-                <span [class]="'num ' + colorOf(s.winningNumber() ?? 0)">{{ s.winningNumber() }}</span>
-              </ng-container>
+    <section class="wheelwrap" [class.on]="s.phase() !== 'bet'" [class.res]="s.phase() === 'result'">
+      <div class="wheelbox">
+        <svg [attr.viewBox]="geo.vb">
+          <defs>
+            <linearGradient id="ptrG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffffff" />
+              <stop offset="1" stop-color="#a9b4c0" />
+            </linearGradient>
+          </defs>
+    
+          <!-- dark centre disc -->
+          <circle class="hub" [attr.cx]="geo.cx" [attr.cy]="geo.cy" [attr.r]="geo.rIn" />
+    
+          <g [attr.transform]="'rotate(' + s.rotation() + ' ' + geo.cx + ' ' + geo.cy + ')'">
+            <path *ngFor="let p of pockets" [attr.d]="p.d" [attr.class]="'pocket ' + p.color" />
+            <text *ngFor="let p of pockets" [attr.x]="p.tx" [attr.y]="p.ty" [style.font-size.px]="geo.fs"
+              [attr.transform]="'rotate(' + p.rot + ' ' + p.tx + ' ' + p.ty + ')'">{{ p.n }}</text>
+          </g>
+    
+          <!-- inner + outer borders like the reference -->
+          <circle [attr.cx]="geo.cx" [attr.cy]="geo.cy" [attr.r]="geo.rOut + 2" class="rim" />
+          <circle [attr.cx]="geo.cx" [attr.cy]="geo.cy" [attr.r]="geo.rIn - 2" class="rim" />
+          <circle [attr.cx]="geo.cx" [attr.cy]="geo.cy" [attr.r]="geo.rOut + 9" class="ring" />
+          <circle [attr.cx]="geo.cx" [attr.cy]="geo.cy" [attr.r]="geo.rIn - 9" class="ring" />
+    
+          <polygon class="ptr" [attr.points]="pointer" />
+        </svg>
+    
+        <div class="status">
+          <ng-container [ngSwitch]="s.phase()">
+            <ng-container *ngSwitchCase="'bet'">
+              <div class="t1">Game starts in:</div>
+              <div class="t2">{{ s.countdown() }} Sec</div>
+            </ng-container>
+    
+            <div class="rolling" *ngSwitchCase="'spin'">Rolling…</div>
+    
+            <div class="result" *ngSwitchDefault>
+              <div class="rcol">
+                <div class="rl">Result:</div>
+                <div class="rv">{{ s.winningNumber() }}</div>
+              </div>
+              <div class="rsep"></div>
+              <div class="rcol">
+                <div class="rl">You win:</div>
+                <div class="rv">{{ chipText(s.winAmount()) }} $</div>
+              </div>
             </div>
-          </div>
+          </ng-container>
         </div>
-      </section>
-
+      </div>
+    </section>
       <!-- mobile top row.
            betting  : total bets | countdown | last number
            rolling / result / chevron opened : full-width history strip -->

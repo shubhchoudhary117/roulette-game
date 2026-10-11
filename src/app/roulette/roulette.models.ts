@@ -40,15 +40,15 @@ export const CHIPS: Chip[] = [
  * Desktop: circle centre sits above the viewport, only the bottom arc shows (narrow, table-width).
  * Pocket 90deg = straight down = under the pointer.
  */
+
 export const WHEEL_D: Geo = {
   cx: 600, cy: -390, rOut: 670, rIn: 545, step: 360 / 37,
-  label: 0.68, fs: 30, pw: 24, ph: 50, vb: '30 -40 1140 320'
+  label: 0.68, fs: 30, pw: 24, ph: 50, vb: '30 -40 1140 332'
 };
 
-/** Mobile: full circle shown in the "Rolling…" overlay, thick ring like the reference. */
 export const WHEEL_M: Geo = {
-  cx: 300, cy: 300, rOut: 292, rIn: 190, step: 360 / 37,
-  label: 0.74, fs: 23, pw: 21, ph: 42, vb: '0 0 600 600'
+  cx: 300, cy: 300, rOut: 282, rIn: 188, step: 360 / 37,
+  label: 0.78, fs: 24, pw: 20, ph: 40, vb: '0 0 600 600'
 };
 
 /** Kept for the service (only uses WHEEL.step, identical in both geometries). */

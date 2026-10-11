@@ -146,7 +146,7 @@ button {
       height: 16px;
     }
 
-    i{
+    i {
       font-size: 24px;
     }
 
@@ -157,7 +157,7 @@ button {
     &.icon {
       padding: 6px;
       background: none;
-      
+
 
       &:hover {
         background: $panel2;
@@ -527,10 +527,11 @@ button {
   }
 
   @include mobile {
-    align-content: start;
-    gap: 2.6vw;
-    padding: 6px 3.4vw 18px;
-    overflow-y: auto;
+    grid-template-rows: auto minmax(0, 1fr) auto; // top row | table (fills) | chips+button
+    align-content: stretch;
+    gap: clamp(4px, 1.2vh, 10px);
+    padding: 6px 3.4vw max(10px, env(safe-area-inset-bottom));
+    overflow: hidden; // no scrolling
     width: 100%;
     max-width: 640px;
     margin: 0 auto;
@@ -551,14 +552,12 @@ button {
   min-height: 0;
   overflow: hidden;
 
-  /* Desktop: box is as wide as the table and keeps the SVG aspect (WHEEL_D.vb = 1140 x 320),
-     anchored to the bottom — if the area is shorter, the top of the wheel is simply cropped (hard edge, like the reference). */
   .wheelbox {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    aspect-ratio: 1140 / 320;
+    aspect-ratio: 1140 / 332;
   }
 
   svg {
@@ -591,11 +590,22 @@ button {
     dominant-baseline: central;
   }
 
+  .hub {
+    fill: rgba(8, 12, 18, .35);
+  }
+
   .rim {
     fill: none;
     stroke: #0e141b;
     stroke-width: 3;
     opacity: .6;
+  }
+
+  .ring {
+    fill: none;
+    stroke: #4b5868;
+    stroke-width: 1.6;
+    opacity: .75;
   }
 
   .ptr {
@@ -606,12 +616,12 @@ button {
     filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .55));
   }
 
-  /* desktop: text sits at the top of the wheel area, inside the ring */
+  /* desktop: text sits just above the pointer */
   .status {
     position: absolute;
     left: 0;
     right: 0;
-    top: 16%;
+    bottom: calc(49.5% + 14px);
     text-align: center;
     pointer-events: none;
 
@@ -619,31 +629,52 @@ button {
       color: #8f9bab;
       font-size: clamp(13px, 2.3vh, 19px);
       font-weight: 700;
-      min-height: 1.2em;
     }
 
     .t2 {
       font-size: clamp(18px, 3.6vh, 27px);
       font-weight: 800;
       margin-top: 2px;
+    }
 
-      .num {
-        &.r {
-          color: #ff7b93;
-        }
+    .rolling {
+      color: #cfd7e3;
+      font-size: clamp(16px, 3vh, 22px);
+      font-weight: 800;
+    }
 
-        &.b {
-          color: #cfd7e3;
-        }
+    /* desktop: "Result: | You win:" side by side */
+    .result {
+      @include flex(row, clamp(12px, 1.6vw, 24px), stretch, center);
+    }
 
-        &.g {
-          color: #5fcf92;
-        }
-      }
+    .rcol {
+      text-align: center;
+    }
+
+    .rl {
+      color: #8f9bab;
+      font-size: clamp(14px, 2.6vh, 22px);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .rv {
+      color: #fff;
+      font-size: clamp(20px, 3.8vh, 30px);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+
+    .rsep {
+      width: 1px;
+      background: rgba(255, 255, 255, .22);
+      align-self: stretch;
     }
   }
 
-  /* mobile: hidden until the wheel rolls, then a blurred overlay under the header */
+  /* mobile: full-circle overlay, text centred inside the ring */
   @include mobile {
     position: fixed;
     inset: 56px 0 0 0;
@@ -665,7 +696,6 @@ button {
       animation: fadeOut .45s ease 1.8s forwards;
     }
 
-    /* full circle (WHEEL_M.vb = 600 x 600) */
     .wheelbox {
       position: relative;
       inset: auto;
@@ -680,14 +710,29 @@ button {
       place-content: center;
       text-align: center;
 
-      .t1 {
-        color: #cfd7e3;
-        font-size: 16px;
-        min-height: 0;
+      /* stacked: Result / number / You win / amount */
+      .result {
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+      }
 
-        &:empty {
-          display: none;
-        }
+      .rsep {
+        display: none;
+      }
+
+      .rl {
+        color: #9aa4b2;
+        font-size: clamp(15px, 4.4vw, 20px);
+      }
+
+      .rv {
+        font-size: clamp(30px, 9vw, 42px);
+        margin-top: 4px;
+      }
+
+      .rcol+.rsep+.rcol {
+        margin-top: clamp(10px, 3vw, 18px);
       }
 
       .t2 {
@@ -1002,10 +1047,17 @@ button {
   }
 
   @include mobile {
+    min-height: 0;
+    height: 100%;
+    max-height: 560px;
+    align-self: center;
+
     .table {
+      height: 100%;
       grid-template-columns: repeat(3, minmax(0, 1.63fr)) minmax(0, 1fr) minmax(0, 1.43fr);
-      grid-auto-rows: clamp(21px, 6.4vw, 32px);
-      gap: clamp(3px, 1.3vw, 6px);
+      grid-template-rows: repeat(14, minmax(0, 1fr)); // rows shrink to fit the screen
+      grid-auto-rows: minmax(0, 1fr);
+      gap: clamp(3px, .7vh, 6px);
     }
 
     .tools-m {
@@ -1030,7 +1082,7 @@ button {
     .cell {
       grid-column: var(--mc);
       grid-row: var(--mr);
-      font-size: clamp(11px, 3.2vw, 14px);
+      font-size: clamp(10px, 3vw, 14px);
       border-radius: 6px;
 
       &:hover {
@@ -1049,8 +1101,8 @@ button {
 
       .chip-on {
         left: 4px;
-        width: clamp(16px, 5vw, 22px);
-        height: clamp(16px, 5vw, 22px);
+        width: clamp(14px, 4.4vw, 22px);
+        height: clamp(14px, 4.4vw, 22px);
       }
 
       .amt {
@@ -1143,23 +1195,12 @@ button {
   }
 
   .place {
-    flex: 0 0 27%;
-    min-width: 130px;
-    background: var(--green-btn);
-    border: none;
-    border-radius: $radius;
-    padding: clamp(10px, 2.4vh, 20px);
-    font-size: clamp(14px, 2.6vh, 20px);
-    font-weight: 800;
-
-    &:hover:not(:disabled) {
-      filter: brightness(1.12);
-    }
-
-    &:disabled {
-      opacity: .45;
-      cursor: not-allowed;
-    }
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    padding: clamp(10px, 1.8vh, 15px);
+    font-size: clamp(15px, 4.4vw, 19px);
+    border-radius: 14px;
   }
 
   @include mobile {
@@ -1200,6 +1241,15 @@ button {
       padding: clamp(14px, 4.2vw, 19px);
       font-size: clamp(15px, 4.6vw, 19px);
       border-radius: 14px;
+      background: #37ad74;
+      border: none;
+      font-weight: 600;
+
+      &:disabled {
+        color: #ffffff;
+        opacity: 0.45;
+      }
+
     }
   }
 }
