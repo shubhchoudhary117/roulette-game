@@ -179,17 +179,53 @@ export class RouletteService {
    * decelerating at the end (matches the "slowing down" part of the sound),
    * and parks the chosen pocket exactly under the pointer.
    */
+  /**
+   * Spin lasts exactly as long as spin.mp3 (e.g. 4s).
+   * Real-wheel feel: starts at moderate speed, then decelerates gently
+   * the whole way and creeps to a stop right at the end (no sudden halt).
+   */
+  /**
+ * Real-wheel spin, no ball.
+ * 1) quick spin-up (wheel gets pushed)
+ * 2) friction deceleration (smooth, long slow-down)
+ * 3) creeps to a stop exactly when spin.mp3 ends
+ */
   private spinTo(num: number): Promise<void> {
-    const dur = this.audio.spinDuration();           // ms, = spin.mp3 length
+    const dur = this.audio.spinDuration();            // ms, = spin.mp3 length
     const idx = ORDER.indexOf(num);
     const target = -idx * WHEEL.step;
     const start = ((this.rotation() % 360) + 360) % 360;
     const norm = ((target % 360) + 360) % 360;
-    // more turns for longer sounds so the speed feels natural
-    const turns = Math.max(4, Math.round((dur / 1000) * 1.3));
+
+    // total turns: 4s -> 3 turns (slow & natural)
+    const turns = Math.max(2, Math.round((dur / 1000) * 0.75));
     const totalTurn = 360 * turns + (((norm - start) % 360) + 360) % 360;
 
-    // start sound and animation together
+    // speed profile: quick ramp-up, then friction decay (exponential)
+    const RAMP = 0.08;     // first 8% of time = spin-up
+    const K = 4;           // friction (bigger = slows earlier, longer creep)
+
+    // speed(p) shape
+    const speed = (p: number) => {
+      const up = Math.min(1, p / RAMP);
+      const ramp = up * up * (3 - 2 * up);            // smoothstep 0 -> 1
+      return ramp * Math.exp(-K * p);
+    };
+
+    // numeric integral of speed -> normalised position 0..1
+    const N = 400;
+    const cum: number[] = [0];
+    for (let i = 1; i <= N; i++) {
+      cum[i] = cum[i - 1] + (speed((i - 0.5) / N) / N);
+    }
+    const total = cum[N];
+    const pos = (p: number) => {
+      const x = Math.min(1, Math.max(0, p)) * N;
+      const i = Math.min(N - 1, Math.floor(x));
+      const f = x - i;
+      return (cum[i] + (cum[i + 1] - cum[i]) * f) / total;
+    };
+
     this.audio.playSpin();
     const t0 = performance.now();
 
@@ -197,10 +233,13 @@ export class RouletteService {
       this.zone.runOutsideAngular(() => {
         const frame = (t: number) => {
           const p = Math.min(1, (t - t0) / dur);
-          const e = 1 - Math.pow(1 - p, 3);            // ease-out: slow, smooth stop
-          this.zone.run(() => this.rotation.set(start + totalTurn * e));
+          this.zone.run(() => this.rotation.set(start + totalTurn * pos(p)));
           if (p < 1) requestAnimationFrame(frame);
-          else this.zone.run(() => { this.audio.stopSpin(); resolve(); });
+          else this.zone.run(() => {
+            this.rotation.set(start + totalTurn);
+            this.audio.stopSpin();
+            resolve();
+          });
         };
         requestAnimationFrame(frame);
       });
